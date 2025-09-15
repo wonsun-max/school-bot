@@ -1,0 +1,9 @@
+{
+  "2-3": {
+    "monday": ["Math", "English", "PE", "Science"],
+    "tuesday": ["History", "Math", "Music", "Art"],
+    "wenesday": ["Science", "English", "Math", "PE"],
+    "thursday": ["Art", "History", "Science", "Math"],
+    "friday": ["PE", "Music", "English", "History"]
+  }
+}
