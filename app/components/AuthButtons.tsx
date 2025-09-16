@@ -6,18 +6,24 @@ export default function AuthButtons() {
   const { data: session } = useSession();
   
   if (!session) {
-    return <button onClick={() => signIn("google")}>Sign in with Google</button>;
+    return (
+      <button className="google-signin-btn" onClick={() => signIn("google")}>
+        Google로 로그인
+      </button>
+    );
   }
   
   return (
-    <div>
+    <div className="user-info">
       <img 
         src={session.user?.image ?? ""} 
         alt="avatar" 
-        style={{width:32, height:32, borderRadius:6}} 
+        className="user-avatar"
       />
-      <span>{session.user?.name}</span>
-      <button onClick={() => signOut()}>Sign out</button>
+      <span className="user-name">{session.user?.name}</span>
+      <button className="signout-btn" onClick={() => signOut()}>
+        로그아웃
+      </button>
     </div>
   );
 }

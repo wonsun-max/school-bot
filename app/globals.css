@@ -237,3 +237,280 @@ body{
   .chat-bubble{max-width:85%}
   .site-header-inner{padding:10px}
 }
+/* ============ GUEST MODE STYLES ============ */
+
+/* Welcome/Login Screen */
+.welcome-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: calc(100vh - 80px);
+  padding: 20px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+.welcome-card {
+  background: white;
+  border-radius: 24px;
+  padding: 48px;
+  max-width: 600px;
+  width: 100%;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+  animation: slideUp 0.5s ease-out;
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.welcome-logo {
+  text-align: center;
+  margin-bottom: 24px;
+}
+
+.welcome-logo img {
+  width: 80px;
+  height: 80px;
+  border-radius: 16px;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.1);
+}
+
+.welcome-title {
+  font-size: 28px;
+  font-weight: 700;
+  text-align: center;
+  margin: 0 0 8px 0;
+  background: linear-gradient(135deg, #667eea, #764ba2);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.welcome-subtitle {
+  text-align: center;
+  color: #6b7280;
+  margin: 0 0 40px 0;
+  font-size: 16px;
+}
+
+.auth-options {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.auth-option {
+  background: #f9fafb;
+  border-radius: 16px;
+  padding: 24px;
+  text-align: center;
+  transition: all 0.3s ease;
+  border: 2px solid transparent;
+}
+
+.auth-option:hover {
+  background: white;
+  border-color: #e5e7eb;
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(0,0,0,0.08);
+}
+
+.auth-option h3 {
+  font-size: 18px;
+  font-weight: 600;
+  margin: 0 0 8px 0;
+  color: #111827;
+}
+
+.auth-option p {
+  font-size: 14px;
+  color: #6b7280;
+  margin: 0 0 16px 0;
+}
+
+/* Divider */
+.divider {
+  position: relative;
+  text-align: center;
+  margin: 8px 0;
+}
+
+.divider span {
+  background: white;
+  padding: 0 16px;
+  color: #9ca3af;
+  font-size: 14px;
+  position: relative;
+}
+
+.divider::before {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: #e5e7eb;
+  z-index: -1;
+}
+
+/* Guest Button */
+.guest-btn {
+  background: linear-gradient(135deg, #f59e0b, #ef4444);
+  color: white;
+  border: none;
+  padding: 12px 32px;
+  border-radius: 12px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 12px rgba(245,158,11,0.3);
+}
+
+.guest-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(245,158,11,0.4);
+}
+
+/* Guest Badge in Toolbar */
+.guest-badge {
+  display: inline-flex;
+  align-items: center;
+  background: linear-gradient(135deg, #f59e0b, #ef4444);
+  color: white;
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-size: 13px;
+  font-weight: 600;
+  margin-right: 8px;
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.8; }
+}
+
+.exit-guest {
+  background: #ef4444;
+  color: white;
+  border: none;
+  transition: all 0.3s ease;
+}
+
+.exit-guest:hover {
+  background: #dc2626;
+  transform: translateY(-1px);
+}
+
+/* Save Indicator */
+.save-indicator {
+  display: inline-flex;
+  align-items: center;
+  color: #10b981;
+  font-size: 13px;
+  font-weight: 500;
+  margin-right: 12px;
+  padding: 4px 8px;
+  background: rgba(16,185,129,0.1);
+  border-radius: 6px;
+}
+
+/* Enhanced Google Sign-in Button */
+.auth-option button[onclick*="signIn"] {
+  background: white;
+  border: 2px solid #e5e7eb;
+  color: #111827;
+  padding: 12px 24px;
+  border-radius: 12px;
+  font-size: 15px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.auth-option button[onclick*="signIn"]:hover {
+  border-color: #4285f4;
+  box-shadow: 0 4px 12px rgba(66,133,244,0.2);
+  transform: translateY(-1px);
+}
+
+.auth-option button[onclick*="signIn"]::before {
+  content: "🔷";
+  font-size: 18px;
+}
+
+/* Responsive Design */
+@media (max-width: 640px) {
+  .welcome-card {
+    padding: 32px 24px;
+  }
+  
+  .welcome-title {
+    font-size: 24px;
+  }
+  
+  .auth-option {
+    padding: 20px;
+  }
+}
+
+/* Chat Empty State for Guest */
+.chat-empty p:first-child {
+  font-weight: 600;
+  font-size: 15px;
+  margin-bottom: 8px;
+}
+/* User Info Styles */
+.user-info {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.user-avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: 2px solid #e5e7eb;
+}
+
+.user-name {
+  font-size: 14px;
+  font-weight: 500;
+  color: #374151;
+}
+
+.google-signin-btn,
+.signout-btn {
+  padding: 8px 16px;
+  border-radius: 8px;
+  border: 1px solid #e5e7eb;
+  background: white;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.google-signin-btn:hover {
+  border-color: #4285f4;
+  color: #4285f4;
+}
+
+.signout-btn:hover {
+  background: #fef2f2;
+  border-color: #ef4444;
+  color: #ef4444;
+}

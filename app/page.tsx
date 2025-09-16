@@ -18,11 +18,12 @@ export default function Page() {
   const [input, setInput] = useState("");
   const [messages, setMessages] = useState<Msg[]>([]);
   const [sending, setSending] = useState(false);
+  const [isGuest, setIsGuest] = useState(false); // NEW: Guest mode state
   const endRef = useRef<HTMLDivElement | null>(null);
 
-  // 로그인하면 DB에서 채팅 기록 불러오기
+  // Load chat history for logged-in users
   useEffect(() => {
-    if (!session) return;
+    if (!session || isGuest) return;
     
     fetch("/api/chat/history")
       .then(res => res.json())
@@ -39,9 +40,9 @@ export default function Page() {
         }
       })
       .catch(console.error);
-  }, [session]);
+  }, [session, isGuest]);
 
-  // 스크롤
+  // Auto-scroll
   useEffect(() => {
     endRef.current?.scrollIntoView({ behavior: "smooth", block: "end" });
   }, [messages]);
@@ -50,7 +51,7 @@ export default function Page() {
     return String(Date.now()) + "-" + Math.random().toString(36).slice(2, 9);
   }
 
-  // 메시지 텍스트 일부씩 노출(typing simulation)
+  // Typing animation
   function revealBotText(id: string, fullText: string) {
     let i = 0;
     const step = () => {
@@ -69,19 +70,22 @@ export default function Page() {
   }
 
   async function sendQuery(q: string) {
-    if (!q.trim() || !session) return;
+    if (!q.trim() || (!session && !isGuest)) return;
+    
     const userMsg: Msg = { id: makeId(), role: "user", text: q, ts: Date.now(), status: "done" };
     setMessages((prev) => [...prev, userMsg]);
     setInput("");
     setSending(true);
 
-    // add placeholder bot message (for typing)
     const botId = makeId();
     const botPlaceholder: Msg = { id: botId, role: "bot", text: "", ts: Date.now(), status: "sending" };
     setMessages((prev) => [...prev, botPlaceholder]);
 
     try {
-      const res = await fetch("/api/chat", {
+      // Choose the right endpoint based on mode
+      const endpoint = isGuest ? "/api/guest/chat" : "/api/chat";
+      
+      const res = await fetch(endpoint, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ query: q }),
@@ -99,7 +103,6 @@ export default function Page() {
       const data = await res.json();
       const answer = typeof data.answer === "string" ? data.answer : JSON.stringify(data);
 
-      // reveal animation
       revealBotText(botId, answer);
     } catch (e) {
       setMessages((prev) =>
@@ -154,30 +157,75 @@ export default function Page() {
     }
   }
 
-  // 로그인 안 되어있으면
-  if (!session) {
+  // NEW: Enter as guest function
+  function enterAsGuest() {
+    setIsGuest(true);
+    setMessages([]); // Clear any existing messages
+  }
+
+  // NEW: Exit guest mode
+  function exitGuestMode() {
+    setIsGuest(false);
+    setMessages([]);
+  }
+
+  // If not logged in and not guest, show login screen
+  if (!session && !isGuest) {
     return (
-      <div className="chat-outer">
-        <div className="chat-card" style={{ textAlign: "center", padding: "40px" }}>
-          <h1>학교 챗봇</h1>
-          <p>Google 계정으로 로그인해주세요</p>
-          <AuthButtons />
+      <div className="welcome-container">
+        <div className="welcome-card">
+          <div className="welcome-logo">
+            <img src="/mha-logo.png" alt="MHA Logo" />
+          </div>
+          <h1 className="welcome-title">마한아 학교 챗봇</h1>
+          <p className="welcome-subtitle">급식, 시간표, 행사 정보를 물어보세요</p>
+          
+          <div className="auth-options">
+            <div className="auth-option">
+              <h3>회원으로 시작하기</h3>
+              <p>대화 내용이 자동으로 저장됩니다</p>
+              <AuthButtons />
+            </div>
+            
+            <div className="divider">
+              <span>또는</span>
+            </div>
+            
+            <div className="auth-option">
+              <h3>게스트로 시작하기</h3>
+              <p>대화 내용이 저장되지 않습니다</p>
+              <button className="guest-btn" onClick={enterAsGuest}>
+                게스트로 입장
+              </button>
+            </div>
+          </div>
         </div>
       </div>
     );
   }
 
+  // Main chat interface
   return (
     <div className="chat-outer">
       <div className="chat-card">
         <div className="chat-toolbar">
           <div className="toolbar-left">
-            <AuthButtons />
+            {isGuest ? (
+              <>
+                <span className="guest-badge">게스트 모드</span>
+                <button className="btn exit-guest" onClick={exitGuestMode}>나가기</button>
+              </>
+            ) : (
+              <AuthButtons />
+            )}
             <button className="btn" onClick={() => sendQuery("오늘 급식")}>오늘 급식</button>
             <button className="btn" onClick={() => sendQuery("내일 시간표")}>내일 시간표</button>
             <button className="btn ghost" onClick={() => sendQuery("다음 행사")}>다음 행사</button>
           </div>
           <div className="toolbar-right">
+            {!isGuest && (
+              <span className="save-indicator">💾 대화 저장됨</span>
+            )}
             <button className="btn small" onClick={exportChat}>내보내기</button>
             <button className="btn small danger" onClick={clearChat}>초기화</button>
           </div>
@@ -186,7 +234,12 @@ export default function Page() {
         <div className="chat-log" role="log" aria-live="polite">
           {messages.length === 0 && (
             <div className="chat-empty">
-              <p>안내: 질문을 입력하거나 위 버튼을 눌러 시작하세요. (Enter: 전송 / Shift+Enter: 줄바꿈)</p>
+              <p>
+                {isGuest 
+                  ? "🔓 게스트 모드입니다. 대화가 저장되지 않습니다."
+                  : "✅ 로그인 완료! 대화가 자동 저장됩니다."}
+              </p>
+              <p>질문을 입력하거나 위 버튼을 눌러 시작하세요.</p>
             </div>
           )}
 
@@ -223,7 +276,6 @@ export default function Page() {
   );
 }
 
-// typing 애니메이션 (간단한 도트)
 function TypingDots() {
   return <span className="typing"><span>.</span><span>.</span><span>.</span></span>;
 }
