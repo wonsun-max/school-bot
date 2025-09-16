@@ -1,8 +1,8 @@
 // app/api/query/route.ts
 import { NextResponse } from "next/server";
-import { loadMeals, Meal } from "../meals";
-import { loadEvents, Event } from "../events";
-import { loadTimetable, Timetable } from "../timetable";
+import { loadMeals } from "../meals";
+import { loadEvents } from "../events";
+import { loadTimetable } from "../timetable";
 import { manilaDateString, findClassKeyFromText, mapWeekdayToName } from "../utils";
 
 export async function POST(req: Request) {
@@ -15,13 +15,21 @@ export async function POST(req: Request) {
 
   // ---------- 급식 처리 ----------
   if (q.includes("급식") || q.includes("meal") || q.includes("lunch")) {
-    let offset = q.includes("tomorrow") || q.includes("내일") ? 1 : q.includes("yesterday") || q.includes("어제") ? -1 : 0;
+    const offset =
+      q.includes("tomorrow") || q.includes("내일")
+        ? 1
+        : q.includes("yesterday") || q.includes("어제")
+        ? -1
+        : 0;
+
     const dateMatch = q.match(/(20\d{2}-\d{2}-\d{2})/);
     const dateStr = dateMatch ? dateMatch[1] : manilaDateString(offset);
 
     const meal = meals.find(m => m.date === dateStr);
     return NextResponse.json({
-      answer: meal ? `${meal.date} 급식: ${meal.menu} (source: ${meal.source})` : `데이터가 없습니다: ${dateStr} 급식 정보 없음`
+      answer: meal
+        ? `${meal.date} 급식: ${meal.menu} (source: ${meal.source})`
+        : `데이터가 없습니다: ${dateStr} 급식 정보 없음`,
     });
   }
 
@@ -46,10 +54,14 @@ export async function POST(req: Request) {
     }
 
     const classData = timetable[cls];
-    if (!classData) return NextResponse.json({ answer: `시간표 데이터 없음: ${cls} 반 정보 없음` });
+    if (!classData) {
+      return NextResponse.json({ answer: `시간표 데이터 없음: ${cls} 반 정보 없음` });
+    }
 
     const schedule = classData[dayName] ?? [];
-    return NextResponse.json({ answer: `${cls} ${dayName} 시간표: ${schedule.join(", ") || "등록된 수업 없음"}` });
+    return NextResponse.json({
+      answer: `${cls} ${dayName} 시간표: ${schedule.join(", ") || "등록된 수업 없음"}`,
+    });
   }
 
   // ---------- 일정 처리 ----------
@@ -57,7 +69,9 @@ export async function POST(req: Request) {
     const today = manilaDateString(0);
     const upcoming = events.filter(e => e.date_start >= today).slice(0, 3);
     if (upcoming.length) {
-      const lines = upcoming.map(e => `${e.title} (${e.date_start}${e.date_end !== e.date_start ? " ~ " + e.date_end : ""})`);
+      const lines = upcoming.map(
+        e => `${e.title} (${e.date_start}${e.date_end !== e.date_start ? " ~ " + e.date_end : ""})`,
+      );
       return NextResponse.json({ answer: `다음 일정: ${lines.join(" / ")}` });
     }
     return NextResponse.json({ answer: "등록된 향후 일정이 없습니다." });
@@ -65,6 +79,6 @@ export async function POST(req: Request) {
 
   // ---------- 기본 fallback ----------
   return NextResponse.json({
-    answer: '죄송해요 — 학교 관련 질문으로 다시 물어봐 주세요. (예: "내일 급식", "2-3반 시간표", "다음 행사")'
+    answer: '죄송해요 — 학교 관련 질문으로 다시 물어봐 주세요. (예: "내일 급식", "2-3반 시간표", "다음 행사")',
   });
 }

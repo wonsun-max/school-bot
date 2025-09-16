@@ -21,7 +21,7 @@ export async function POST(req: Request) {
 
   // Process meals
   if (q.includes("급식") || q.includes("meal") || q.includes("lunch")) {
-    let offset = q.includes("tomorrow") || q.includes("내일") ? 1 : 
+    const offset = q.includes("tomorrow") || q.includes("내일") ? 1 : 
                  q.includes("yesterday") || q.includes("어제") ? -1 : 0;
     const dateMatch = q.match(/(20\d{2}-\d{2}-\d{2})/);
     const dateStr = dateMatch ? dateMatch[1] : manilaDateString(offset);
